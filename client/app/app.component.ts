@@ -14,6 +14,7 @@ export class AppComponent implements OnInit {
   private chartData;
   public startDate =  '2016-01-11';
   public endDate = '2017-01-10';
+  public charts: number
 
   constructor(
     private _api: ApiService,
@@ -21,8 +22,10 @@ export class AppComponent implements OnInit {
   ){}
 
   ngOnInit(): void {
+    this.charts = 3;
     this.addData('GOOGL');
     this.addData('MSFT');
+    this.addData('AMZN');
   }
 
   addData(ticker){
@@ -31,22 +34,21 @@ export class AppComponent implements OnInit {
     this._api.getHistory(query)
       .subscribe(res => {
         //console.log('ngOnInit(): retrieved ', res);
-        let processedData = [];
-        for(let i=0; i<res.query.results.quote.length; i++){
-          processedData.push({
-            Date  : res.query.results.quote[i].Date,
-            Close : res.query.results.quote[i].Close,
-          })
-        }
-        this.chartCollection[this.chartCollection.length] = processedData;
-        console.log('ngOnInit(): processed', this.chartCollection)
+        let processedData = {id: ticker, values: []};
+        for(let i=0; i<res.query.results.quote.length; i++)
+          processedData.values[res.query.results.quote.length-i-1] = {date: res.query.results.quote[i].Date,
+          close: Math.round(res.query.results.quote[i].Close * 10)/10};
+        this.chartCollection.push(processedData);
+        //console.log('ngOnInit(): processed', this.chartCollection)
         this.updateChart();
       });
   }
 
   updateChart(){
-    this.chartData = [];
-    this.chartCollection.forEach(chart => this.chartData.push(chart));
-    console.log('updateChart()', this.chartData);
+    if(this.chartCollection.length >= this.charts){
+      this.chartData = [];
+      this.chartCollection.forEach(chart => this.chartData.push(chart));
+      console.log('updateChart()', this.chartData);
+    }
   }
 }

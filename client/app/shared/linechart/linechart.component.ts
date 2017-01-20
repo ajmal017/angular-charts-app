@@ -29,12 +29,12 @@ export class LinechartComponent implements OnInit, OnChanges {
   private close: any;
   private element: any;
 
-  private line: any;
+  //private line: any;
 
   constructor() { }
 
   ngOnInit() {
-    console.log('ngOnInit');
+    //console.log('ngOnInit');
     this.createChart();
     if (this.data) {
       this.updateChart();
@@ -49,90 +49,96 @@ export class LinechartComponent implements OnInit, OnChanges {
   }
 
   createChart() {
-    console.log('createChart()', this.chartContainer);
+    //console.log('createChart()', this.chartContainer);
     let element = this.chartContainer.nativeElement;
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
-    console.log('set parseDate');
+    //console.log('set parseDate');
 
 
-    console.log('set svg');
+    //console.log('set svg');
     this.svg = d3.select(element).append('svg')
       .attr('width', element.offsetWidth)
       .attr('height', element.offsetHeight);
-    console.log('build chart');
+    //console.log('build chart');
 
     // chart plot area
     this.chart = this.svg
       .append('g')
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
-    console.log('this.chart: ', this.chart);
-
-    // create scales
-    this.xScale = d3.scaleTime().range([0, this.width]),
-    console.log('xscale: ', this.xScale);
-    this.yScale = d3.scaleLinear().range([this.height, 0]),
-    this.zScale = d3.scaleOrdinal(d3.schemeCategory10);
+    //console.log('this.chart: ', this.chart);
 
 
-   this.line = d3.line()
-    .curve(d3.curveBasis)
-    .x(function(d: any) { return this.xScale(d.date); })
-    .y(function(d: any) { return this.yScale(d.temperature); });
+    
+
 
   }
 
   updateChart() {
-    console.log('entering  updateChart()');
+
+    // create scales
+    var xScale = d3.scaleTime().range([0, this.width]);
+    //console.log('xscale: ', xScale);
+    var yScale = d3.scaleLinear().range([this.height, 0]);
+
+    //console.log('entering  updateChart()');
     let parseDate = d3.timeParse("%Y-%m-%d");
 
     console.log('declaring cities: ', this.data);
-  var cities = this.data.columns.slice(1).map(function(id) {
-    return {
-      id: id,
-      values: this.data.map(function(d) {
-        return {date: d.date, temperature: d[id]};
-      })
-    };
-  });
+  // var cities = this.data.columns.slice(1).map(function(id) {
+  //   return {
+  //     id: id,
+  //     values: this.data.map(function(d) {
+  //       return {date: d.date, close: d[id]};
+  //     })
+  //   };
+  // });
+  var cities = this.data;
+  cities.forEach(city => {
+    city.values.forEach(entry => {
+      entry.date = parseDate(entry.date);
+      entry.close = +entry.close;
+    })
+  })
 
     console.log('setting scales', cities);
-  this.xScale.domain(d3.extent(this.data, function(d: any) { return d.date; }));
+  xScale.domain(d3.extent(cities[0].values, function(d: any) { return d.date; }));
 
-  this.yScale.domain([
+  yScale.domain([
     d3.min(cities, function(c: any) { 
       return d3.min(c.values, function(d: any) { 
-        return d.temperature; 
+        return d.close; 
       }); 
     }),
     d3.max(cities, function(c: any) { 
       return d3.max(c.values, function(d: any) { 
-        return d.temperature; 
+        return d.close; 
       }); 
     })
   ]);
 
-  this.zScale.domain(cities.map(function(c) { return c.id; }));
+
 
 
     console.log('appending axis');
   this.chart.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(0," + this.height + ")")
-      .call(d3.axisBottom(this.xScale));
+      .call(d3.axisBottom(xScale));
 
   this.chart.append("g")
       .attr("class", "axis axis--y")
-      .call(d3.axisLeft(this.yScale))
+      .call(d3.axisLeft(yScale))
     .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("fill", "#000")
-      .text("Temperature, ºF");
+      .text("close, ºF");
 
-    console.log('appending cities');
+      console.log('Adding cities data: ', cities)
+
   var city = this.chart.selectAll(".city")
     .data(cities)
     .enter().append("g")
@@ -140,22 +146,33 @@ export class LinechartComponent implements OnInit, OnChanges {
 
     console.log('setting path');
 
+  var zScale = d3.scaleOrdinal(d3.schemeCategory10);
+  zScale.domain(cities.map(function(c) { console.log('zScale: ', c); return c.id; }));
+
+   var line = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d: any) { console.log('line1: ', d); return xScale(d.date); })
+    .y(function(d: any) { console.log('line2: ', d); return yScale(d.close); });
+
+    console.log('setting path 2');
   city.append("path")
       .attr("class", "line")
-      .attr("d", function(d) { return this.line(d.values); })
-      .style("stroke", function(d) { return this.zScale(d.id); });
+      .attr("d", function(d) { console.log(d); return line(d.values); })
+      .style("stroke", function(d) {  console.log(d); return zScale(d.id); });
 
+    console.log('setting path 3');
   city.append("text")
       .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
       .attr("transform", function(d) { 
-        return "translate(" + this.xScale(d.value.date) + "," + 
-          this.yScale(d.value.temperature) + ")"; 
+        return "translate(" + xScale(d.value.date) + "," + 
+          yScale(d.value.close) + ")"; 
         })
       .attr("x", 3)
       .attr("dy", "0.35em")
       .style("font", "10px sans-serif")
       .text(function(d) { return d.id; });
 
+    console.log('setting path 4');
   }
 
 }
