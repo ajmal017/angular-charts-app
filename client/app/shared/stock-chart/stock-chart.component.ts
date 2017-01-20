@@ -25,6 +25,7 @@ export class StockChartComponent implements OnInit, OnChanges {
   //private parseDate: any;
   private svg: any;
   private adx: any;
+  private close: any;
   private element: any;
 
   constructor() { }
@@ -64,47 +65,61 @@ export class StockChartComponent implements OnInit, OnChanges {
 
     console.log('this.chart: ', this.chart);
     // define X & Y domains
-    let xDomain = this.data.map(d => d[0]);
-    let yDomain = [0, d3.max(this.data, d => d[1])];
+    // let xDomain = this.data.map(d => d[0]);
+    // let yDomain = [0, d3.max(this.data, d => d[1])];
 
     // create scales
     this.xScale = techan.scale.financetime().range([0, this.width]);
     console.log('xscale: ', this.xScale);
     this.yScale = d3.scaleLinear().range([this.height, 0]);
 
-    this.adx = techan.plot.adx().xScale(this.xScale).yScale(this.yScale);
-
+    //this.adx = techan.plot.adx().xScale(this.xScale).yScale(this.yScale);
+    this.close = techan.plot.close().xScale(this.xScale).yScale(this.yScale);
     // x & y axis
     this.xAxis = d3.axisBottom(this.xScale);
-    this.yAxis = d3.axisLeft(this.yScale).tickFormat(d3.format(",.3s"));
-
+    //this.yAxis = d3.axisLeft(this.yScale).tickFormat(d3.format(",.3s"));
+    this.yAxis = d3.axisLeft(this.yScale);
   }
 
   updateChart() {
     console.log('updateChart(): ', this.chart)
-    let accessor = this.adx.accessor();
+    //let accessor = this.adx.accessor();
+    var accessor = this.close.accessor();
     // update scales & axis
     console.log('set domain')
-    this.xScale.domain(this.data.map(d => d[0]));
-    this.yScale.domain([0, d3.max(this.data, d => d[1])]);
+    // this.xScale.domain(this.data.map(d => d[0]));
+    // this.yScale.domain([0, d3.max(this.data, d => d[1])]);
 
-    var parseDate = d3.timeParse("%d-%b-%y");
+    let parseDate = d3.timeParse("%Y-%m-%d");
 
-    console.log('process data: ');
-    let processedData = this.data.map(function(d) {
+    let processedData = this.data.slice(0, 200).map(function(d) {
       return {
-        date: d3.timeParse(d.Date),
-        volume: +d.Volume,
+        date: parseDate(d.Date),
         open: +d.Open,
         high: +d.High,
         low: +d.Low,
-        close: +d.Close
+        close: +d.Close,
+        volume: +d.Volume
       };
     }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
+
+    console.log('process data: ');
+    // let processedData = this.data.map(function(d) {
+    //   return {
+    //     date: parseDate(d.Date),
+    //     volume: +d.Volume,
+    //     open: +d.Open,
+    //     high: +d.High,
+    //     low: +d.Low,
+    //     close: +d.Close
+    //   };
+    // }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
     console.log('data processed: ', processedData);
 
-    this.svg.append("g")
-      .attr("class", "adx");
+    // this.svg.append("g")
+    //   .attr("class", "adx");
+      this.svg.append("g")
+              .attr("class", "close");
 
     this.svg.append("g")
       .attr("class", "x axis")
@@ -119,20 +134,28 @@ export class StockChartComponent implements OnInit, OnChanges {
       .style("text-anchor", "end")
       .text("Average Directional Index");
       console.log('drawing: ');
-    this.draw(processedData.slice(0, processedData.length-20));
+
+      this.draw(processedData.slice(0, processedData.length-20));
+    //this.draw(processedData.slice(0, processedData.length-20));
   }
 
-  // parseDate(date){
-  //   return d3.timeParse("%d-%b-%y");
-  // }
 
   draw(data) {
-    var adxData = techan.indicator.adx()(data);
-    this.xScale.domain(adxData.map(this.adx.accessor().d));
-    this.yScale.domain(techan.scale.plot.adx(adxData).domain());
+      this.xScale.domain(data.map(this.close.accessor().d));
+      this.yScale.domain(techan.scale.plot.ohlc(data, this.close.accessor()).domain());
 
-    this.svg.selectAll("g.adx").datum(adxData).call(this.adx);
-    this.svg.selectAll("g.x.axis").call(this.xAxis);
-    this.svg.selectAll("g.y.axis").call(this.yAxis);
+      this.svg.selectAll("g.close").datum(data).call(this.close);
+      this.svg.selectAll("g.x.axis").call(this.xAxis);
+      this.svg.selectAll("g.y.axis").call(this.yAxis);
   }
+
+  // draw(data) {
+  //   var adxData = techan.indicator.adx()(data);
+  //   this.xScale.domain(adxData.map(this.adx.accessor().d));
+  //   this.yScale.domain(techan.scale.plot.adx(adxData).domain());
+
+  //   this.svg.selectAll("g.adx").datum(adxData).call(this.adx);
+  //   this.svg.selectAll("g.x.axis").call(this.xAxis);
+  //   this.svg.selectAll("g.y.axis").call(this.yAxis);
+  // }
 }

@@ -27,23 +27,8 @@
         display: none;
     }
 
-    .adx path {
+    path.line {
         fill: none;
+        stroke: #000000;
         stroke-width: 1;
-    }
-
-    .adx {
-        stroke: #000000;
-    }
-
-    .adx path.adx {
-        stroke: #000000;
-    }
-
-    .adx path.plusDi {
-        stroke: #00ff00;
-    }
-
-    .adx path.minusDi {
-        stroke: #ff0000;
     }

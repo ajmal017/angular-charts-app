@@ -1,9 +1,7 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { AppComponent } from "./app.component";
-import { HomeComponent } from './home/home.component';
-import { BarchartComponent } from './shared/barchart/barchart.component';
-import { StockChartComponent } from './shared/stock-chart/stock-chart.component';
+import { LinechartComponent } from './shared/linechart/linechart.component';
 
 import { SharedModule } from './shared/shared.module';
 
@@ -14,9 +12,7 @@ import { SharedModule } from './shared/shared.module';
   ],
   declarations: [
     AppComponent,
-    HomeComponent,
-    StockChartComponent,
-    BarchartComponent
+    LinechartComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -12,7 +12,7 @@ import 'rxjs/add/operator/map';
 
 @Injectable()
 export class ApiService {
-  //private _apiUrl = 'http://dev.markitondemand.com/MODApis/Api/v2/InteractiveChart/json?parameters=';
+  private _apiUrl = 'https://query.yahooapis.com/v1/public/yql?q=';
   public priceHistory = {};
 
   constructor(
@@ -20,12 +20,25 @@ export class ApiService {
     private _log: Logger,
   ){}
 
-  public getHistory(stock) {
-    this._log['log']('getHistory(stock)', stock);
+  public getHistory(queryString) {
+    this._log['log']('getHistory(queryString)', this._apiUrl + queryString);
     return this._http
-      .get('/assets/api/techan.json')
+      //.get('/assets/api/techan.json')
+      .get(this._apiUrl + queryString)
       .map((res: Response) => res.json())
       .catch(this.handleError);
+  }
+
+  buildQuery(ticker: string, start: string, end: string){
+    let query ='select * from yahoo.finance.historicaldata where symbol = "' +
+    ticker + '" and startDate = "' + start + '" and endDate = "' + end + '"&format=json' +
+    '&diagnostics=true&env=store://datatables.org/alltableswithkeys&callback=';
+    query = this.encodeURL(query).replace(/%5C%22/g, '%22').substr(3).replace(/format%3D/, 'format=');
+    return query.substr(0, query.length-3).replace(/%26/g, '&').replace(/env%3D/, 'env=');
+  }
+
+  encodeURL(data){
+    return encodeURIComponent(JSON.stringify(data));
   }
 
   private handleError(err: Response) : Observable<Response> {
