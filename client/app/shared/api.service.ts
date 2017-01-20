@@ -23,7 +23,7 @@ export class ApiService {
   public getHistory(stock) {
     this._log['log']('getHistory(stock)', stock);
     return this._http
-      .get('../../assets/price.json')
+      .get('/assets/api/techan.json')
       .map((res: Response) => res.json())
       .catch(this.handleError);
   }

@@ -4,6 +4,8 @@
 <p>Call the API</p>
 
 
-<button>Update</button>
+<p><a (click)="showData()">Update</a></p>
 
-<app-home></app-home>
+<stock-chart *ngIf="chartData" [data]="chartData"></stock-chart>
+
+<!--<app-home></app-home>-->

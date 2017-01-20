@@ -15,8 +15,8 @@ import { SharedModule } from './shared/shared.module';
   declarations: [
     AppComponent,
     HomeComponent,
-    BarchartComponent,
-    StockChartComponent
+    StockChartComponent,
+    BarchartComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

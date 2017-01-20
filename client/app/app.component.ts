@@ -10,6 +10,7 @@ import { Logger } from './shared/logger.service';
   styleUrls: ['./app.view.css']
 })
 export class AppComponent implements OnInit {
+  private chartData: any;
 
   constructor(
     private _api: ApiService,
@@ -17,10 +18,14 @@ export class AppComponent implements OnInit {
   ){}
 
   ngOnInit(): void {
+    setTimeout(() => {
     this._api.getHistory('something')
       .subscribe(history => {
-        console.log(history);
+        //console.log(history);
+        this.chartData = history;
       });
+    }, 1000);
+
   }
 
   encodeURL(data){
@@ -29,6 +34,10 @@ export class AppComponent implements OnInit {
 
   getHistory(stock){
 
+  }
+
+  showData(){
+    //console.log(this.chartData)
   }
 
 }
