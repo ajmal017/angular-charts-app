@@ -1,4 +1,5 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input,
+         Output, EventEmitter} from '@angular/core';
 
 @Component({
   selector: 'stocktiles',
@@ -7,6 +8,15 @@ import {Component, Input} from '@angular/core';
 })
 export class StockTilesComponent {
   private bricks = [];
+  
+  @Input() stockSymbols
+  @Output() notify = new EventEmitter();
 
-  public stock: string;
+
+  onClick() {
+    this.notify.emit(['AMZN', 'GOOGL', 'MA']);
+  }
+  
+  increment() {
+  }
 }

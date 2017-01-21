@@ -22,23 +22,24 @@ export class AppComponent implements OnInit {
   model: NgbDateStruct;
   date: {year: number, month: number};
 
-
-  @Input() stock: string;
+  public stockSymbols: string[];
 
   selectToday() {
     this.model = {year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate()};
   }
 
-
+onNotify(message): void {
+  this.stockSymbols = message;
+}
   constructor(
     private _api: ApiService,
     private _log: Logger
   ){}
 
   ngOnInit(): void {
-    // this.charts = 2;
-    // this.addData('GOOGL');
-    // this.addData('AMZN');
+    this.stockSymbols = ['AMZN', 'GOOGL']
+    this.charts = this.stockSymbols.length;
+    // this.stockSymbols.forEach(symbol => this.addData(symbol));
   }
 
   addData(ticker){

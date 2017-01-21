@@ -4,4 +4,8 @@
   </masonry-brick>
 </masonry>
 
-asd
+<span *ngFor="let stock of stockSymbols">
+  {{stock}}
+</span>
+
+<button (click)="onClick()">Trigger it</button>

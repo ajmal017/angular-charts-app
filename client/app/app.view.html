@@ -27,11 +27,11 @@
   </div>
     <div class="row">
       <div class="col-sm">
-        <stocktiles></stocktiles>
+        <stocktiles [stockSymbols]="stockSymbols" (notify)='onNotify($event)'></stocktiles>
       </div>
     </div>
 </div>
-
+<p><code>counterValue = {{stockSymbols}}</code></p>
 <footer class="text-center">
   <p>FreeCodeCamp &nbsp; | &nbsp; <i class="zmdi zmdi-github-alt"></i> &nbsp; <a href="https://github.com/cjsheets">Chad Sheets</a></p>
 </footer>
