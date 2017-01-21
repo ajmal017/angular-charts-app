@@ -1,4 +1,4 @@
-import {Component, OnInit Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter} from '@angular/core';
 import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 
 const now = new Date();
@@ -26,10 +26,6 @@ export class NgbdDatepickerPopup implements OnInit {
         this.lastModel = this.model;
       }
     }, 1000); // Fast enough
-  }
-
-  onNotify(notified){
-    console.log(notified)
   }
 
 

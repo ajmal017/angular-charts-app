@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <div class="row row-header">
       <div class="col-md-4 col-header">
-        <h3>Angular Stocks</h3>
+        <h3><i class="zmdi zmdi-trending-up"></i> Angular Stocks</h3>
       </div>
       <div class="col-md-8 col-header">
         <stockpicker></stockpicker>
@@ -27,7 +27,7 @@
   </div>
     <div class="row">
       <div class="col-sm">
-        <stocktiles [stockSymbols]="stockSymbols" (notify)='onNotify($event)'></stocktiles>
+        <stocktiles [companyCollection]="companyCollection" (notify)='removeStock($event)'></stocktiles>
       </div>
     </div>
 </div>

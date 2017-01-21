@@ -1,11 +1,15 @@
 <masonry [options]="{ transitionDuration: '0.0000001s' }">
-  <masonry-brick *ngFor="let chart of chartData">
-    <div>{{chart.id}}</div>
+  <masonry-brick *ngFor="let company of companyCollection">
+    <div class="brick">
+      <button type="button" class="close">
+       <i class="zmdi zmdi-close"></i>  
+      </button>
+      <h3>{{company.symbol}}</h3>
+      <p>{{company.name}} - Traded on the {{company.exchange}} exchange with a 
+        market cap of ${{company.marketcap}}. Presently {{company.volume}} shares
+        outstanding with an annual value range of {{company.range}} USD.</p>
+    </div>
   </masonry-brick>
 </masonry>
-
-<span *ngFor="let stock of stockSymbols">
-  {{stock}}
-</span>
 
 <button (click)="onClick()">Trigger it</button>

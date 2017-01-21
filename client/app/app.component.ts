@@ -6,29 +6,23 @@ import { Logger } from './shared/logger.service';
 import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 
 
-const now = new Date();
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.view.html',
   styleUrls: ['./app.view.css']
 })
 export class AppComponent implements OnInit {
-  private chartCollection = [];
-  private chartData;
-  public charts: number
-  model: NgbDateStruct;
-  date: {year: number, month: number};
-  selectedDate;
-
   public stockSymbols: string[];
+  private chartCollection = [];
+  private companyCollection = [];
+  private chartData;
+  public 
+  public selectedDate;
+
 
   @ViewChild('fromDate') fromDateComponent;
   @ViewChild('toDate') toDateComponent;
 
-  selectToday() {
-    this.model = {year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate()};
-  }
 
 onNotify(message): void {
   this.stockSymbols = message;
@@ -47,16 +41,16 @@ setDate(message, toOrFrom): void {
     this.fromDateComponent.init('From', this.selectedDate.from);
     this.toDateComponent.init('To', this.selectedDate.to);
     this.stockSymbols = ['AMZN', 'GOOGL']
-    this.charts = this.stockSymbols.length;
-    // this.stockSymbols.forEach(symbol => this.addData(symbol));
+    //this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
+    this.getStockInfo(this.stockSymbols)
   }
 
-  addData(ticker){
-    let query = this._api.buildQuery(ticker, this.selectedDate.from, this.selectedDate.to);
+  getStockHistory(ticker){
+    let query = this._api.buildHistoryQuery(ticker, this.selectedDate.from, this.selectedDate.to);
     //console.log('ngOnInit(): ', query);
-    this._api.getHistory(query)
+    this._api.queryAPI(query)
       .subscribe(res => {
-        console.log('ngOnInit(): retrieved ', res);
+        //console.log('ngOnInit(): retrieved ', res);
         let processedData = {id: ticker, values: []};
         for(let i=0; i<res.query.results.quote.length; i++)
           processedData.values[res.query.results.quote.length-i-1] = {date: res.query.results.quote[i].Date,
@@ -67,11 +61,36 @@ setDate(message, toOrFrom): void {
       });
   }
 
+  getStockInfo(ticker){
+    let query = this._api.buildQuoteQuery(ticker.join('","'));
+    this.companyCollection = [];
+    //console.log('ngOnInit(): ', query);
+    this._api.queryAPI(query)
+      .subscribe(res => {
+        res.query.results.quote.forEach(quote => {
+          let companyData = {
+            id: ticker,
+            symbol: quote.Symbol,
+            name: quote.Name,
+            exchange: quote.StockExchange,
+            marketcap: quote.MarketCapitalization,
+            range: quote.YearRange,
+            volume: quote.Volume
+          }
+          this.companyCollection.push(companyData);
+        });
+      });
+  }
+
   updateChart(){
-    if(this.chartCollection.length >= this.charts){
+    if(this.chartCollection.length >= this.stockSymbols.length){
       this.chartData = [];
       this.chartCollection.forEach(chart => this.chartData.push(chart));
       //console.log('updateChart()', this.chartData);
     }
+  }
+
+  removeStock(){
+    console.log('Stock Removed');
   }
 }
