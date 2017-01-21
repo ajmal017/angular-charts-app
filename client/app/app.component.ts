@@ -33,9 +33,9 @@ export class AppComponent implements OnInit {
   ){}
 
   ngOnInit(): void {
-    this.charts = 2;
-    this.addData('GOOGL');
-    this.addData('AMZN');
+    // this.charts = 2;
+    // this.addData('GOOGL');
+    // this.addData('AMZN');
   }
 
   addData(ticker){

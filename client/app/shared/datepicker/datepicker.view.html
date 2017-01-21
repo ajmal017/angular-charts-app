@@ -1,15 +1,12 @@
-<form class="form-inline">
+<form class="float-right form-header">
   <div class="form-group">
     <div class="input-group">
-      <input class="form-control" placeholder="yyyy-mm-dd"
-             name="dp" [(ngModel)]="model" ngbDatepicker #d="ngbDatepicker">
+      <label class="col-form-label">{{toOrFrom}} &nbsp;</label>
+      <input class="form-control form-control-sm" placeholder="yyyy-mm-dd"
+        name="dp" [(ngModel)]="model" ngbDatepicker #d="ngbDatepicker">
       <div class="input-group-addon" (click)="d.toggle()" >
         <i class="zmdi zmdi-calendar" style="width: 1.2rem; height: 1rem; cursor: pointer;"></i>
       </div>
     </div>
   </div>
 </form>
-
-<hr/>
-<pre>Model: {{ model | json }}</pre>
-

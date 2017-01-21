@@ -1,13 +1,27 @@
 <div id="wrap">
   <div class="container-fluid">
-    <div class="row">
-      <div class="col-sm">
-        <datepicker></datepicker>
+    <div class="row row-header">
+      <div class="col-md-4 col-header">
+        <h3>Angular Stocks</h3>
+      </div>
+      <div class="col-md-8 col-header">
+        <stockpicker></stockpicker>
+      </div>
+    </div>
+    <div class="row row-header">
+      <div class="col-md col-header">
+        Syncs in realtime across clients
+      </div>
+      <div class="col-md col-header">
+        <datepicker [toOrFrom]="'From'"></datepicker>
+      </div>
+      <div class="col-md col-header">
+        <datepicker [toOrFrom]="'To'"></datepicker>
       </div>
     </div>
     <div class="row">
-      <div class="col-sm">
-        <linechart *ngIf="chartData" [data]="chartData"></linechart>
+      <div class="col-sm" style="height: 350px;">
+        <!--<linechart *ngIf="chartData" [data]="chartData"></linechart>-->
       </div>
     </div>
   </div>

@@ -6,6 +6,7 @@ body, html {
   padding: 0;
   margin: 0;
   font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
 }
 #wrap {
   min-height: 100%;
@@ -29,4 +30,18 @@ footer {
 
 .container {
   padding-bottom: 32px;
+}
+
+.container-fluid{
+
+  padding-top: 10px;
+}
+
+.custom-select {
+  background: #FFFFFF;
+  background-image: none !important;
+}
+
+.form-header{
+  width: 100%;
 }
