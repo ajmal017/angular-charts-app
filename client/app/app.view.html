@@ -1,11 +1,22 @@
-<p>Hi</p>
+<div id="wrap">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm">
+        <masonry [options]="{ transitionDuration: '0.0000001s' }">
+          <masonry-brick *ngFor="let chart of chartData">
+            <div>{{chart.id}}</div>
+          </masonry-brick>
+        </masonry>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm">
+        <linechart *ngIf="chartData" [data]="chartData"></linechart>
+      </div>
+    </div>
+  </div>
+</div>
 
-
-<p>Call the API</p>
-
-
-<p><a (click)="showData()">Update</a></p>
-
-<linechart *ngIf="chartData" [data]="chartData"></linechart>
-
-<!--<app-home></app-home>-->
+<footer class="text-center">
+  <p>FreeCodeCamp &nbsp; | &nbsp; <i class="zmdi zmdi-github-alt"></i> &nbsp; <a href="https://github.com/cjsheets">Chad Sheets</a></p>
+</footer>

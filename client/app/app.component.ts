@@ -22,9 +22,8 @@ export class AppComponent implements OnInit {
   ){}
 
   ngOnInit(): void {
-    this.charts = 3;
+    this.charts = 2;
     this.addData('GOOGL');
-    this.addData('MSFT');
     this.addData('AMZN');
   }
 
@@ -33,7 +32,7 @@ export class AppComponent implements OnInit {
     //console.log('ngOnInit(): ', query);
     this._api.getHistory(query)
       .subscribe(res => {
-        //console.log('ngOnInit(): retrieved ', res);
+        console.log('ngOnInit(): retrieved ', res);
         let processedData = {id: ticker, values: []};
         for(let i=0; i<res.query.results.quote.length; i++)
           processedData.values[res.query.results.quote.length-i-1] = {date: res.query.results.quote[i].Date,
@@ -48,7 +47,7 @@ export class AppComponent implements OnInit {
     if(this.chartCollection.length >= this.charts){
       this.chartData = [];
       this.chartCollection.forEach(chart => this.chartData.push(chart));
-      console.log('updateChart()', this.chartData);
+      //console.log('updateChart()', this.chartData);
     }
   }
 }

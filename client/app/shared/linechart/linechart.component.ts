@@ -102,7 +102,7 @@ export class LinechartComponent implements OnInit, OnChanges {
     })
   })
 
-    console.log('setting scales', cities);
+    //console.log('setting scales', cities);
   xScale.domain(d3.extent(cities[0].values, function(d: any) { return d.date; }));
 
   yScale.domain([
@@ -137,30 +137,26 @@ export class LinechartComponent implements OnInit, OnChanges {
       .attr("fill", "#000")
       .text("close, ºF");
 
-      console.log('Adding cities data: ', cities)
+      //console.log('Adding cities data: ', cities)
 
   var city = this.chart.selectAll(".city")
     .data(cities)
     .enter().append("g")
       .attr("class", "city");
 
-    console.log('setting path');
-
   var zScale = d3.scaleOrdinal(d3.schemeCategory10);
-  zScale.domain(cities.map(function(c) { console.log('zScale: ', c); return c.id; }));
+  zScale.domain(cities.map(function(c) { return c.id; }));
 
    var line = d3.line()
     .curve(d3.curveBasis)
-    .x(function(d: any) { console.log('line1: ', d); return xScale(d.date); })
-    .y(function(d: any) { console.log('line2: ', d); return yScale(d.close); });
+    .x(function(d: any) { return xScale(d.date); })
+    .y(function(d: any) { return yScale(d.close); });
 
-    console.log('setting path 2');
   city.append("path")
       .attr("class", "line")
-      .attr("d", function(d) { console.log(d); return line(d.values); })
-      .style("stroke", function(d) {  console.log(d); return zScale(d.id); });
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return zScale(d.id); });
 
-    console.log('setting path 3');
   city.append("text")
       .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
       .attr("transform", function(d) { 
@@ -172,7 +168,6 @@ export class LinechartComponent implements OnInit, OnChanges {
       .style("font", "10px sans-serif")
       .text(function(d) { return d.id; });
 
-    console.log('setting path 4');
   }
 
 }

@@ -1,1 +1,32 @@
-/* You can add global styles to this file, and also import other style files */
+* {
+	margin: 0;
+}
+body, html {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+}
+#wrap {
+  min-height: 100%;
+	margin-bottom: -100px; 
+}
+#wrap:after {
+  content: "";
+  display: block;
+}
+
+footer, #wrap:after {
+	height: 100px; 
+}
+
+footer {
+  clear:both;
+  padding-top:20px;
+  color: #999999;
+  font-size: 0.9rem;
+}
+
+.container {
+  padding-bottom: 32px;
+}
