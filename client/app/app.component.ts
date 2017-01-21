@@ -16,8 +16,8 @@ export class AppComponent implements OnInit {
   private chartCollection = [];
   private companyCollection = [];
   private chartData;
-  public 
   public selectedDate;
+  public errorMessage = { search: '', date: '' }
 
 
   @ViewChild('fromDate') fromDateComponent;
@@ -26,10 +26,6 @@ export class AppComponent implements OnInit {
 
 onNotify(message): void {
   this.stockSymbols = message;
-}
-
-setDate(message, toOrFrom): void {
-  this.selectedDate[toOrFrom] = message;
 }
   constructor(
     private _api: ApiService,
@@ -42,7 +38,7 @@ setDate(message, toOrFrom): void {
     this.toDateComponent.init('To', this.selectedDate.to);
     this.stockSymbols = ['AMZN', 'GOOGL']
     //this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
-    this.getStockInfo(this.stockSymbols)
+    //this.getStockInfo(this.stockSymbols)
   }
 
   getStockHistory(ticker){
@@ -92,5 +88,36 @@ setDate(message, toOrFrom): void {
 
   removeStock(){
     console.log('Stock Removed');
+  }
+
+  addStock(stock){
+    let query = this._api.buildQuoteQuery(stock);
+    this._api.queryAPI(query)
+      .subscribe(res => {
+        if(res.query.results.quote.Name){
+          console.log('success, adding')
+          this.stockSymbols.push(stock.toUpperCase())
+        } else{
+          console.log('trigger error')
+          this.errorMessage.search = stock + ' was not found.'
+        }
+      });
+  }
+
+  setDate(proposedDate, toOrFrom): void {
+    let newDate = new Date(proposedDate);
+    if(toOrFrom == 'to'){
+      if(newDate.getTime() - (new Date(this.selectedDate.from).getTime()) > 0) {
+        this.selectedDate.to = proposedDate;
+      } else {
+        this.errorMessage.date = 'Dates must be sequential. ' + proposedDate + ' is not valid.'
+      }
+    } else {
+      if((new Date(this.selectedDate.to).getTime()) - newDate.getTime() > 0) {
+        this.selectedDate.from = proposedDate;
+      } else {
+        this.errorMessage.date = 'Dates must be sequential. ' + proposedDate + ' is not valid.'
+      }
+    }
   }
 }

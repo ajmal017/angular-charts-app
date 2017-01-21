@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter} from '@angular/core';
 
 @Component({
   selector: 'stockpicker',
@@ -7,5 +7,12 @@ import {Component, Input} from '@angular/core';
 })
 export class StockPickerComponent {
 
+  @Output() notify = new EventEmitter();
+
   public stock: string;
+  model;
+
+  stockSubmit() {
+    this.notify.emit(this.model);
+  }
 }

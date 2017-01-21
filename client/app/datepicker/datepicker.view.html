@@ -1,4 +1,5 @@
-<form class="float-right form-header" #f="ngForm" novalidate (ngSubmit)="dateSubmit(f.value)">
+<form class="float-right form-header" #f="ngForm" novalidate [class.form-padding]="dateLabel == 'To'"
+  (ngSubmit)="dateSubmit(f.value)">
   <div class="form-group">
     <div class="input-group">
       <label class="col-form-label">{{dateLabel}} &nbsp;</label>

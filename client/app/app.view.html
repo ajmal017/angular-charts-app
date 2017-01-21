@@ -1,21 +1,29 @@
 <div id="wrap">
   <div class="container-fluid">
     <div class="row row-header">
-      <div class="col-md-4 col-header">
+      <div class="col-md-6 col-header">
         <h3><i class="zmdi zmdi-trending-up"></i> Angular Stocks</h3>
       </div>
-      <div class="col-md-8 col-header">
-        <stockpicker></stockpicker>
+      <div class="col-md-6 col-header">
+        <stockpicker (notify)='addStock($event)'></stockpicker>
       </div>
     </div>
     <div class="row row-header">
-      <div class="col-md col-header">
-        Syncs in realtime across clients
+      <div class="col-md-6 col-header">
+        <span  *ngIf="!errorMessage.search && !errorMessage.date">
+          Syncs in realtime across clients
+        </span><span  *ngIf="errorMessage.search && !errorMessage.date" class="alert alert-danger">
+          {{errorMessage.search}}
+        </span><span  *ngIf="!errorMessage.search && errorMessage.date" class="alert alert-danger">
+          {{errorMessage.date}}
+        </span><span  *ngIf="errorMessage.search && errorMessage.date" class="alert alert-danger">
+          Date range and stock symbol are not valid
+        </span>
       </div>
-      <div class="col-md col-header">
+      <div class="col-md-3 col-header">
         <datepicker #fromDate (notify)="setDate($event, 'from')"></datepicker>
       </div>
-      <div class="col-md col-header">
+      <div class="col-md-3 col-header">
         <datepicker #toDate (notify)="setDate($event, 'to')"></datepicker>
       </div>
     </div>
