@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
 
 
 import { ApiService } from './shared/api.service';
@@ -16,13 +16,15 @@ const now = new Date();
 export class AppComponent implements OnInit {
   private chartCollection = [];
   private chartData;
-  public startDate =  '2016-01-11';
-  public endDate = '2017-01-10';
   public charts: number
   model: NgbDateStruct;
   date: {year: number, month: number};
+  selectedDate;
 
   public stockSymbols: string[];
+
+  @ViewChild('fromDate') fromDateComponent;
+  @ViewChild('toDate') toDateComponent;
 
   selectToday() {
     this.model = {year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate()};
@@ -31,19 +33,26 @@ export class AppComponent implements OnInit {
 onNotify(message): void {
   this.stockSymbols = message;
 }
+
+setDate(message, toOrFrom): void {
+  this.selectedDate[toOrFrom] = message;
+}
   constructor(
     private _api: ApiService,
     private _log: Logger
   ){}
 
   ngOnInit(): void {
+    this.selectedDate = {from: '2016-01-11', to: '2017-01-10'}
+    this.fromDateComponent.init('From', this.selectedDate.from);
+    this.toDateComponent.init('To', this.selectedDate.to);
     this.stockSymbols = ['AMZN', 'GOOGL']
     this.charts = this.stockSymbols.length;
     // this.stockSymbols.forEach(symbol => this.addData(symbol));
   }
 
   addData(ticker){
-    let query = this._api.buildQuery(ticker, this.startDate, this.endDate);
+    let query = this._api.buildQuery(ticker, this.selectedDate.from, this.selectedDate.to);
     //console.log('ngOnInit(): ', query);
     this._api.getHistory(query)
       .subscribe(res => {

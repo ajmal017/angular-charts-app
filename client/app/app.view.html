@@ -13,10 +13,10 @@
         Syncs in realtime across clients
       </div>
       <div class="col-md col-header">
-        <datepicker [toOrFrom]="'From'"></datepicker>
+        <datepicker #fromDate (notify)="setDate($event, 'from')"></datepicker>
       </div>
       <div class="col-md col-header">
-        <datepicker [toOrFrom]="'To'"></datepicker>
+        <datepicker #toDate (notify)="setDate($event, 'to')"></datepicker>
       </div>
     </div>
     <div class="row">
@@ -32,6 +32,8 @@
     </div>
 </div>
 <p><code>counterValue = {{stockSymbols}}</code></p>
+<p><code>selectedDate.from = {{selectedDate.from}}</code></p>
+<p><code>selectedDate.to = {{selectedDate.to}}</code></p>
 <footer class="text-center">
   <p>FreeCodeCamp &nbsp; | &nbsp; <i class="zmdi zmdi-github-alt"></i> &nbsp; <a href="https://github.com/cjsheets">Chad Sheets</a></p>
 </footer>
