@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 
 import { ApiService } from './shared/api.service';
@@ -21,6 +21,9 @@ export class AppComponent implements OnInit {
   public charts: number
   model: NgbDateStruct;
   date: {year: number, month: number};
+
+
+  @Input() stock: string;
 
   selectToday() {
     this.model = {year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate()};
