@@ -4,6 +4,7 @@ import { HttpModule } from '@angular/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MasonryModule } from 'angular2-masonry';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbdDatepickerPopup } from './datepicker/datepicker.component';
 
 import { ApiService } from './api.service';
 import { Logger, ConsoleLogService } from './logger.service';
@@ -14,12 +15,19 @@ import { RavenErrorHandler } from './sentry-io.service';
   imports: [
     CommonModule,
     HttpModule,
+    FormsModule,
+    ReactiveFormsModule,   
+    NgbModule.forRoot(),
+  ],
+  declarations: [
+    NgbdDatepickerPopup
   ],
   exports : [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     NgbModule,
+    NgbdDatepickerPopup,
     MasonryModule
   ],
   providers: [

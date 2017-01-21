@@ -2,11 +2,7 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-sm">
-        <masonry [options]="{ transitionDuration: '0.0000001s' }">
-          <masonry-brick *ngFor="let chart of chartData">
-            <div>{{chart.id}}</div>
-          </masonry-brick>
-        </masonry>
+        <datepicker></datepicker>
       </div>
     </div>
     <div class="row">
@@ -15,6 +11,15 @@
       </div>
     </div>
   </div>
+    <div class="row">
+      <div class="col-sm">
+        <masonry [options]="{ transitionDuration: '0.0000001s' }">
+          <masonry-brick *ngFor="let chart of chartData">
+            <div>{{chart.id}}</div>
+          </masonry-brick>
+        </masonry>
+      </div>
+    </div>
 </div>
 
 <footer class="text-center">

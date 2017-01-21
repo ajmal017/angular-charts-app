@@ -4,10 +4,12 @@ import { AppComponent } from "./app.component";
 import { LinechartComponent } from './shared/linechart/linechart.component';
 
 import { SharedModule } from './shared/shared.module';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   imports: [
     BrowserModule,
+    NgbModule.forRoot(),
     SharedModule
   ],
   declarations: [

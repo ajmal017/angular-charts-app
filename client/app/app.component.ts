@@ -3,6 +3,10 @@ import { Component, OnInit } from '@angular/core';
 
 import { ApiService } from './shared/api.service';
 import { Logger } from './shared/logger.service';
+import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
+
+
+const now = new Date();
 
 @Component({
   selector: 'app-root',
@@ -15,6 +19,13 @@ export class AppComponent implements OnInit {
   public startDate =  '2016-01-11';
   public endDate = '2017-01-10';
   public charts: number
+  model: NgbDateStruct;
+  date: {year: number, month: number};
+
+  selectToday() {
+    this.model = {year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate()};
+  }
+
 
   constructor(
     private _api: ApiService,
