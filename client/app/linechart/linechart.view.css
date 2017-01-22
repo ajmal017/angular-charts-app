@@ -1,5 +1,8 @@
-.axis--x path {
-  display: none;
+.axis--x path, .axis--y path {
+  stroke: #bbb;
+}
+.tick line {
+  stroke: #bbb;
 }
 
 .line {
@@ -12,4 +15,5 @@
 .d3-chart {
   width: 100%;
   height: 400px;
+  padding-right: 20px;
 }

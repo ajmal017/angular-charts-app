@@ -12,7 +12,7 @@ import 'rxjs/add/operator/map';
 
 @Injectable()
 export class ApiService {
-  private _apiUrl = 'https://query.yahooapis.com/v1/public/yql?q=';
+  private _apiUrl = 'http://query.yahooapis.com/v1/public/yql?q=';
   public priceHistory = {};
 
   constructor(
@@ -48,7 +48,7 @@ export class ApiService {
     dateRanges.forEach(range =>{
       let query ='select * from yahoo.finance.historicaldata where symbol = "' +
       ticker + '" and startDate = "' + range.from + '" and endDate = "' + range.to + '"&format=json' +
-      '&diagnostics=true&env=store://datatables.org/alltableswithkeys&callback=';
+      '&env=store://datatables.org/alltableswithkeys';
       query = this.encodeURL(query).replace(/%5C%22/g, '%22').substr(3).replace(/format%3D/, 'format=');
       queries.push(query.substr(0, query.length-3).replace(/%26/g, '&').replace(/env%3D/, 'env='));
     });
@@ -56,8 +56,10 @@ export class ApiService {
   }
 
   formatDate(time){
-    let date = new Date(time)
-    return  date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+    let date = new Date(time), d = date.getDay(), m = (date.getMonth() + 1);
+    let day = (d > 9) ? '' + d : '0' + d;
+    let month = (m > 9) ? '' + m : '0' + m;
+    return  date.getFullYear() + '-' + month + '-' + day;
   }
 
   buildQuoteQuery(ticker: string){

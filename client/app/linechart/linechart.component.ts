@@ -52,7 +52,7 @@ export class LinechartComponent implements OnInit, OnChanges {
   createChart() {
     //console.log('createChart()', this.chartContainer);
     let element = this.chartContainer.nativeElement;
-    this.width = element.offsetWidth - this.margin.left - this.margin.right;
+    this.width = element.offsetWidth - this.margin.left - this.margin.right - 40;
     this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
     //console.log('set parseDate');
 
@@ -145,7 +145,7 @@ export class LinechartComponent implements OnInit, OnChanges {
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("fill", "#000")
-      .text("close, ºF");
+      .text("Price, USD");
 
       console.log('Adding cities data: ', cities)
 
