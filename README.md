@@ -33,3 +33,5 @@ To get more help on the `angular-cli` use `ng --help` or go check out the [Angul
 ## To-Do
 
 * Add timeout function to undo changes that fail (either due to bug or API)
+* Improve error handling when API request fails
+* Improve response when multiple requests made before graph renders

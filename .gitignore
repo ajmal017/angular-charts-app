@@ -39,3 +39,7 @@ example.html
 example.static.html
 markitondemand.api
 yahoo.api
+
+
+server/config/environment/development.env.js
+yelp.api

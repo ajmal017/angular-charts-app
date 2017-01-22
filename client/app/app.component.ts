@@ -158,7 +158,7 @@ export class AppComponent implements OnInit {
         if(chart.id != symbol) newChartCollection.push(chart);
       });
       this.chartCollection = newChartCollection;
-      this.numberOfMergers = (this.stockSymbols.length * (this.numberOfQueries - 1);
+      this.numberOfMergers = (this.stockSymbols.length * (this.numberOfQueries - 1));
       this.updateChart();
     } else {
       this.errorMessage.remove = 'Add another stock to remove ' + symbol;
