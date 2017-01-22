@@ -16,6 +16,9 @@ export class AppComponent implements OnInit {
   private chartCollection = [];
   private companyCollection = [];
   private chartData;
+  private numberOfMergers;
+  private numberOfQueries;
+  private numberOfAdditions = 0;
   public selectedDate;
   public errorMessage = { search: '', date: '', remove: '' }
 
@@ -33,24 +36,28 @@ export class AppComponent implements OnInit {
     this.fromDateComponent.init('From', this.selectedDate.from);
     this.toDateComponent.init('To', this.selectedDate.to);
     this.stockSymbols = ['AMZN', 'GOOGL']
+    this.numberOfMergers = 0;
     this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
     this.getStockInfo(this.stockSymbols)
   }
 
   getStockHistory(ticker){
-    let query = this._api.buildHistoryQuery(ticker, this.selectedDate.from, this.selectedDate.to);
-    //console.log('ngOnInit(): ', query);
-    this._api.queryAPI(query)
-      .subscribe(res => {
-        //console.log('ngOnInit(): retrieved ', res);
-        let processedData = {id: ticker, values: []};
-        for(let i=0; i<res.query.results.quote.length; i++)
-          processedData.values[res.query.results.quote.length-i-1] = {date: res.query.results.quote[i].Date,
-          close: Math.round(res.query.results.quote[i].Close * 10)/10};
-        this.chartCollection.push(processedData);
-        //console.log('getStockHistory(): processed', this.chartCollection)
-        this.updateChart();
-      });
+    let queries = this._api.buildHistoryQuery(ticker, this.selectedDate.from, this.selectedDate.to);
+    console.log('ngOnInit(): ', queries);
+    this.numberOfQueries = queries.length; 
+    queries.forEach(query =>{
+      this._api.queryAPI(query)
+        .subscribe(res => {
+          console.log('ngOnInit(): retrieved ', res);
+          let processedData = {id: ticker, values: []};
+          for(let i=0; i<res.query.results.quote.length; i++)
+            processedData.values[res.query.results.quote.length-i-1] = {date: res.query.results.quote[i].Date,
+            close: Math.round(res.query.results.quote[i].Close * 10)/10};
+          this.chartCollection.push(processedData);
+          //console.log('getStockHistory(): processed', this.chartCollection)
+          this.updateChart();
+        });
+    });
   }
 
   getStockInfo(ticker){
@@ -85,9 +92,56 @@ export class AppComponent implements OnInit {
   }
 
   updateChart(){
-    if(this.chartCollection.length >= this.stockSymbols.length){
+    console.log('update charts')
+    this.mergeCharts();
+    console.log('Adding to chart', this.chartCollection.length, this.stockSymbols.length, this.numberOfQueries, this.numberOfMergers)
+    if(this.chartCollection.length == this.stockSymbols.length &&
+      this.numberOfMergers == (this.stockSymbols.length * (this.numberOfQueries - 1)) ||
+      this.numberOfAdditions && this.numberOfMergers == (this.numberOfQueries - 1)){
+        console.log('entered, adding...')
       this.chartData = [];
       this.chartCollection.forEach(chart => this.chartData.push(chart));
+      this.numberOfAdditions = 0;
+    }
+  }
+
+  mergeCharts(){
+    if(this.chartCollection.length == this.stockSymbols.length * this.numberOfQueries
+      || this.numberOfAdditions && (this.chartCollection.length == this.stockSymbols.length + this.numberOfQueries - 1 )){
+      console.log('Merge Charts: ')
+      let ss = this.stockSymbols, nq = this.numberOfQueries,
+          cc=this.chartCollection, n = cc.length;
+      for(let k=0; k<( nq - 1 ); k++){
+        console.log('k=', k)
+        for(let i=0; i<ss.length; i++){
+          console.log('i=', i)
+          var max = -1;
+          for(let j=0; j<n; j++){ // find largest
+            if(ss[i] == cc[j].id){
+              if(max == -1) max = j;
+              if(new Date(cc[max].values[0]).getTime() >
+                new Date(cc[j].values[0]).getTime()) max = j;
+            }
+          }
+          var newMax = max, max = -1;
+          for(let j=0; j<n; j++){ // find second largest
+            if(j != newMax){
+              if(ss[i] == cc[j].id){
+                if(max == -1) max = j;
+                if(new Date(cc[max].values[0]).getTime() >
+                  new Date(cc[j].values[0]).getTime()) max = j;
+              }
+            }
+          }
+          if(max != -1){
+            cc[newMax].values = cc[newMax].values.concat(cc[max].values)
+            cc.splice(max, 1);
+            this.numberOfMergers++;
+            n--;
+          }
+        }
+      }
+      console.log('Merge Charts (done): ', this.chartCollection)
     }
   }
 
@@ -104,6 +158,7 @@ export class AppComponent implements OnInit {
         if(chart.id != symbol) newChartCollection.push(chart);
       });
       this.chartCollection = newChartCollection;
+      this.numberOfMergers = (this.stockSymbols.length * (this.numberOfQueries - 1);
       this.updateChart();
     } else {
       this.errorMessage.remove = 'Add another stock to remove ' + symbol;
@@ -120,6 +175,8 @@ export class AppComponent implements OnInit {
           console.log('success, adding')
           this.stockSymbols.push(ucStock)
           this.getStockInfo(this.stockSymbols)
+          this.numberOfMergers = 0;
+          this.numberOfAdditions++;
           this.getStockHistory(ucStock)
         } else{
           console.log('trigger error')
@@ -136,13 +193,19 @@ export class AppComponent implements OnInit {
         this.selectedDate.to = proposedDate;
       } else {
         this.errorMessage.date = 'Dates must be sequential. ' + proposedDate + ' is not valid.'
+        return;
       }
     } else {
       if((new Date(this.selectedDate.to).getTime()) - newDate.getTime() > 0) {
         this.selectedDate.from = proposedDate;
       } else {
         this.errorMessage.date = 'Dates must be sequential. ' + proposedDate + ' is not valid.'
+        return;
       }
     }
+    console.log('update plot')
+    this.chartCollection = [];
+    this.numberOfMergers = 0;
+    this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
   }
 }

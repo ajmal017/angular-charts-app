@@ -29,12 +29,35 @@ export class ApiService {
       .catch(this.handleError);
   }
 
-  buildHistoryQuery(ticker: string, start: string, end: string){
-    let query ='select * from yahoo.finance.historicaldata where symbol = "' +
-    ticker + '" and startDate = "' + start + '" and endDate = "' + end + '"&format=json' +
-    '&diagnostics=true&env=store://datatables.org/alltableswithkeys&callback=';
-    query = this.encodeURL(query).replace(/%5C%22/g, '%22').substr(3).replace(/format%3D/, 'format=');
-    return query.substr(0, query.length-3).replace(/%26/g, '&').replace(/env%3D/, 'env=');
+  buildHistoryQuery(ticker: string, from: string, to: string){
+    let timeFrom = (new Date(from)).getTime(), timeTo = (new Date(to)).getTime();
+    let dateRanges = [];
+    while(true){
+      if(timeTo - 31104000000 >= timeFrom){
+        dateRanges.push({to: this.formatDate(timeTo), from: this.formatDate(timeTo - 31104000000)})
+        timeTo -= 31104000000 + 86400000; // - 360 days + 1 day
+      } else {
+        if(timeTo - timeFrom < 2678400000){ // if less than 1 month difference
+          timeFrom -= 2678400000; // otherwise api doesn't respond
+        }
+        dateRanges.push({to: this.formatDate(timeTo), from: this.formatDate(timeFrom)})
+        break;
+      }
+    }
+    let queries = [];
+    dateRanges.forEach(range =>{
+      let query ='select * from yahoo.finance.historicaldata where symbol = "' +
+      ticker + '" and startDate = "' + range.from + '" and endDate = "' + range.to + '"&format=json' +
+      '&diagnostics=true&env=store://datatables.org/alltableswithkeys&callback=';
+      query = this.encodeURL(query).replace(/%5C%22/g, '%22').substr(3).replace(/format%3D/, 'format=');
+      queries.push(query.substr(0, query.length-3).replace(/%26/g, '&').replace(/env%3D/, 'env='));
+    });
+    return queries;
+  }
+
+  formatDate(time){
+    let date = new Date(time)
+    return  date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
   }
 
   buildQuoteQuery(ticker: string){
