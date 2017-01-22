@@ -1,7 +1,8 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ViewChild } from '@angular/core';
 
 
 import { ApiService } from './shared/api.service';
+import { SocketIoService } from './shared/socket-io.service';
 import { Logger } from './shared/logger.service';
 import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 
@@ -11,7 +12,7 @@ import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './app.view.html',
   styleUrls: ['./app.view.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   public stockSymbols: string[];
   private chartCollection = [];
   private companyCollection = [];
@@ -22,16 +23,25 @@ export class AppComponent implements OnInit {
   public selectedDate;
   public errorMessage = { search: '', date: '', remove: '' }
 
+ messages = [];
+ connection;
+ message;
 
   @ViewChild('fromDate') fromDateComponent;
   @ViewChild('toDate') toDateComponent;
 
   constructor(
-    private _api: ApiService,
-    private _log: Logger
+    private _api  : ApiService,
+    private _io   : SocketIoService,
+    private _log  : Logger
   ){}
 
   ngOnInit(): void {
+ this.connection = this._io.getMessages()
+  .subscribe(message => {
+      this.messages.push(message);
+    })
+
     this.selectedDate = {from: '2016-01-11', to: '2017-01-10'}
     this.fromDateComponent.init('From', this.selectedDate.from);
     this.toDateComponent.init('To', this.selectedDate.to);
@@ -40,6 +50,12 @@ export class AppComponent implements OnInit {
     this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
     this.getStockInfo(this.stockSymbols)
   }
+
+   ngOnDestroy() {
+     this.connection.unsubscribe();
+    }
+
+     sendMessage(){ this._io.sendMessage(this.message); this.message = ''; }
 
   getStockHistory(ticker){
     let queries = this._api.buildHistoryQuery(ticker, this.selectedDate.from, this.selectedDate.to);

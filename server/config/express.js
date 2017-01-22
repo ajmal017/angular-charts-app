@@ -19,6 +19,8 @@ var env             = require('./environment');
  */
 var app             = express();
 var port            = process.env.PORT || 5000;
+var http            = require('http').createServer(app);
+var io              = require('socket.io')(http);
 
 // Setup logging and database middlewares
 let er = env.raven;
@@ -41,6 +43,19 @@ app.set('view engine', 'ejs'); // set up ejs for templating
 app.use(express.static(path.join(__dirname, '../../dist')));
 
 
+
+io.on('connection', (socket) =>{
+  console.log('user connected');
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+  socket.on('add-message', (message) => {
+    io.emit('message', {
+      type:'new-message', text: message
+    });
+  });
+});
+
 /* -----------------------------------|
  *|  Routes
  */
@@ -48,7 +63,7 @@ var routes          = require('../routes');
 app.use('/', routes);
 
 // launch ======================================================================
-app.listen(port);
+http.listen(port); // listening with http instead of express
 debug(' 🌎  Express server listening on %d, in %s mode  🌎', port, process.env.NODE_ENV);
 
 
