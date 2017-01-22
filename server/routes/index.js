@@ -21,6 +21,12 @@ router.use(function(req, res, next) {
   next();
 });
 
+/**
+ * "use" should be before any other route definitions
+ */
+// Import all other route modules
+router.use('/api',      require('./api'));
+
 // Landing page
 router.get('/', function(req, res, next) {
   debug('API root accessed. JSON response.');

@@ -12,12 +12,13 @@ import 'rxjs/add/operator/map';
 
 @Injectable()
 export class ApiService {
-  private _apiUrl = 'http://query.yahooapis.com/v1/public/yql?q=';
+  private _apiUrl = this._api + '/api/proxy/?';
   public priceHistory = {};
 
   constructor(
     private _http: Http,
     private _log: Logger,
+    @Inject('api-url') private _api: string
   ){}
 
   public queryAPI(queryString) {
