@@ -44,6 +44,7 @@ export class LinechartComponent implements OnInit, OnChanges {
   ngOnChanges() {
     //console.log('ngOnChanges():', this.data);
     if (this.chart) {
+      this.clearChart();
       this.updateChart();
     }
   }
@@ -65,6 +66,7 @@ export class LinechartComponent implements OnInit, OnChanges {
     // chart plot area
     this.chart = this.svg
       .append('g')
+      .attr("id", "thechart")
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
     //console.log('this.chart: ', this.chart);
@@ -95,11 +97,19 @@ export class LinechartComponent implements OnInit, OnChanges {
   //   };
   // });
   var cities = this.data;
-  cities.forEach(city => {
-    city.values.forEach(entry => {
-      entry.date = parseDate(entry.date);
-      entry.close = +entry.close;
-    })
+  cities.forEach(city => { // lines that were processed once are already converted
+    if(typeof city.values[0].date === 'string' || 
+      city.values[0].date instanceof String) {
+      city.values.forEach(entry => {
+        entry.date = parseDate(entry.date);
+        entry.close = +entry.close;
+      })
+    } else {
+      city.values.forEach(entry => {
+        entry.date = entry.date;
+        entry.close = +entry.close;
+      })        
+    }
   })
 
     //console.log('setting scales', cities);
@@ -137,7 +147,7 @@ export class LinechartComponent implements OnInit, OnChanges {
       .attr("fill", "#000")
       .text("close, ºF");
 
-      //console.log('Adding cities data: ', cities)
+      console.log('Adding cities data: ', cities)
 
   var city = this.chart.selectAll(".city")
     .data(cities)
@@ -167,7 +177,16 @@ export class LinechartComponent implements OnInit, OnChanges {
       .attr("dy", "0.35em")
       .style("font", "10px sans-serif")
       .text(function(d) { return d.id; });
+      console.log('Done generating chart')
 
+    //this.correctDates();
+  }
+
+  clearChart(){
+    var element = document.getElementById("thechart");
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
   }
 
 }

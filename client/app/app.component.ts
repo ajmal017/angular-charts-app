@@ -23,10 +23,6 @@ export class AppComponent implements OnInit {
   @ViewChild('fromDate') fromDateComponent;
   @ViewChild('toDate') toDateComponent;
 
-
-onNotify(message): void {
-  this.stockSymbols = message;
-}
   constructor(
     private _api: ApiService,
     private _log: Logger
@@ -37,7 +33,7 @@ onNotify(message): void {
     this.fromDateComponent.init('From', this.selectedDate.from);
     this.toDateComponent.init('To', this.selectedDate.to);
     this.stockSymbols = ['AMZN', 'GOOGL']
-    //this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
+    this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
     this.getStockInfo(this.stockSymbols)
   }
 
@@ -52,7 +48,7 @@ onNotify(message): void {
           processedData.values[res.query.results.quote.length-i-1] = {date: res.query.results.quote[i].Date,
           close: Math.round(res.query.results.quote[i].Close * 10)/10};
         this.chartCollection.push(processedData);
-        //console.log('ngOnInit(): processed', this.chartCollection)
+        //console.log('getStockHistory(): processed', this.chartCollection)
         this.updateChart();
       });
   }
@@ -62,7 +58,7 @@ onNotify(message): void {
     this.companyCollection = [];
     this._api.queryAPI(query)
       .subscribe(res => {
-        console.log('getStockInfo(ticker): ', res);
+        //console.log('getStockInfo(ticker): ', res);
         if(Array.isArray(res.query.results.quote)){
           res.query.results.quote.forEach(quote => {
           this.companyCollection.push(
@@ -72,7 +68,7 @@ onNotify(message): void {
           this.companyCollection.push(
             this.extractCompanyInfo(ticker, res.query.results.quote));
         }
-        console.log('done: ', this.companyCollection);
+        //console.log('done: ', this.companyCollection);
       });
   }
 
@@ -92,39 +88,48 @@ onNotify(message): void {
     if(this.chartCollection.length >= this.stockSymbols.length){
       this.chartData = [];
       this.chartCollection.forEach(chart => this.chartData.push(chart));
-      //console.log('updateChart()', this.chartData);
     }
   }
 
   removeStock(symbol){
     if(this.stockSymbols.length > 1){
-      let newStockSymbols = []
+      let newStockSymbols = [] // Use javascript function to complete
       this.stockSymbols.forEach(stock => {
         if(stock != symbol) newStockSymbols.push(stock);
       });
       this.stockSymbols = newStockSymbols;
       this.getStockInfo(this.stockSymbols)
+      let newChartCollection = [] // Use javascript function to complete
+      this.chartCollection.forEach(chart =>{
+        if(chart.id != symbol) newChartCollection.push(chart);
+      });
+      this.chartCollection = newChartCollection;
+      this.updateChart();
     } else {
       this.errorMessage.remove = 'Add another stock to remove ' + symbol;
     }
   }
 
   addStock(stock){
-    let query = this._api.buildQuoteQuery(stock);
+    console.log('addStock(): initial', this.stockSymbols)
+    let ucStock = stock.toUpperCase()
+    let query = this._api.buildQuoteQuery(ucStock);
     this._api.queryAPI(query)
       .subscribe(res => {
         if(res.query.results.quote.Name){
           console.log('success, adding')
-          this.stockSymbols.push(stock.toUpperCase())
+          this.stockSymbols.push(ucStock)
           this.getStockInfo(this.stockSymbols)
+          this.getStockHistory(ucStock)
         } else{
           console.log('trigger error')
-          this.errorMessage.search = stock + ' was not found.'
+          this.errorMessage.search = ucStock + ' was not found.'
         }
       });
   }
 
   setDate(proposedDate, toOrFrom): void {
+    console.log('setDate(): initial', this.stockSymbols)
     let newDate = new Date(proposedDate);
     if(toOrFrom == 'to'){
       if(newDate.getTime() - (new Date(this.selectedDate.from).getTime()) > 0) {

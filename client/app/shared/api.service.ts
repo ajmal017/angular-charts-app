@@ -21,7 +21,7 @@ export class ApiService {
   ){}
 
   public queryAPI(queryString) {
-    this._log['log']('getHistory(queryString)', this._apiUrl + queryString);
+    //this._log['log']('getHistory(queryString)', this._apiUrl + queryString);
     return this._http
       //.get('/assets/api/techan.json')
       .get(this._apiUrl + queryString)
