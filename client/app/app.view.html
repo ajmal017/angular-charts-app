@@ -10,14 +10,16 @@
     </div>
     <div class="row row-header">
       <div class="col-md-6 col-header">
-        <span  *ngIf="!errorMessage.search && !errorMessage.date">
+        <span  *ngIf="!errorMessage.search && !errorMessage.date && !errorMessage.remove">
           Syncs in realtime across clients
-        </span><span  *ngIf="errorMessage.search && !errorMessage.date" class="alert alert-danger">
+        </span><span  *ngIf="errorMessage.search && !errorMessage.date && !errorMessage.remove" class="alert alert-danger">
           {{errorMessage.search}}
-        </span><span  *ngIf="!errorMessage.search && errorMessage.date" class="alert alert-danger">
+        </span><span  *ngIf="!errorMessage.search && errorMessage.date && !errorMessage.remove" class="alert alert-danger">
           {{errorMessage.date}}
-        </span><span  *ngIf="errorMessage.search && errorMessage.date" class="alert alert-danger">
+        </span><span  *ngIf="errorMessage.search && errorMessage.date && !errorMessage.remove" class="alert alert-danger">
           Date range and stock symbol are not valid
+        </span><span  *ngIf="errorMessage.remove" class="alert alert-danger">
+          {{errorMessage.remove}}
         </span>
       </div>
       <div class="col-md-3 col-header">
@@ -39,9 +41,6 @@
       </div>
     </div>
 </div>
-<p><code>counterValue = {{stockSymbols}}</code></p>
-<p><code>selectedDate.from = {{selectedDate.from}}</code></p>
-<p><code>selectedDate.to = {{selectedDate.to}}</code></p>
 <footer class="text-center">
   <p>FreeCodeCamp &nbsp; | &nbsp; <i class="zmdi zmdi-github-alt"></i> &nbsp; <a href="https://github.com/cjsheets">Chad Sheets</a></p>
 </footer>

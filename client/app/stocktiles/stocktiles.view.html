@@ -1,7 +1,7 @@
 <masonry [options]="{ transitionDuration: '0.0000001s' }">
   <masonry-brick *ngFor="let company of companyCollection">
     <div class="brick">
-      <button type="button" class="close">
+      <button type="button" class="close" (click)="removeStock(company.symbol)">
        <i class="zmdi zmdi-close"></i>  
       </button>
       <h3>{{company.symbol}}</h3>
@@ -11,5 +11,3 @@
     </div>
   </masonry-brick>
 </masonry>
-
-<button (click)="onClick()">Trigger it</button>

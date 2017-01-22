@@ -16,6 +16,10 @@ export class StockTilesComponent {
     //this.notify.emit(['AMZN', 'GOOGL', 'MA']);
     console.log(this.companyCollection);
   }
+
+  removeStock(symbol){
+    this.notify.emit(symbol);
+  }
   
   increment() {
   }

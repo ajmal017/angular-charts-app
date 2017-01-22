@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
   private companyCollection = [];
   private chartData;
   public selectedDate;
-  public errorMessage = { search: '', date: '' }
+  public errorMessage = { search: '', date: '', remove: '' }
 
 
   @ViewChild('fromDate') fromDateComponent;
@@ -38,7 +38,7 @@ onNotify(message): void {
     this.toDateComponent.init('To', this.selectedDate.to);
     this.stockSymbols = ['AMZN', 'GOOGL']
     //this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
-    //this.getStockInfo(this.stockSymbols)
+    this.getStockInfo(this.stockSymbols)
   }
 
   getStockHistory(ticker){
@@ -60,22 +60,32 @@ onNotify(message): void {
   getStockInfo(ticker){
     let query = this._api.buildQuoteQuery(ticker.join('","'));
     this.companyCollection = [];
-    //console.log('ngOnInit(): ', query);
     this._api.queryAPI(query)
       .subscribe(res => {
-        res.query.results.quote.forEach(quote => {
-          let companyData = {
-            id: ticker,
-            symbol: quote.Symbol,
-            name: quote.Name,
-            exchange: quote.StockExchange,
-            marketcap: quote.MarketCapitalization,
-            range: quote.YearRange,
-            volume: quote.Volume
-          }
-          this.companyCollection.push(companyData);
-        });
+        console.log('getStockInfo(ticker): ', res);
+        if(Array.isArray(res.query.results.quote)){
+          res.query.results.quote.forEach(quote => {
+          this.companyCollection.push(
+            this.extractCompanyInfo(ticker, quote));
+          });
+        } else { // Single item in resposne
+          this.companyCollection.push(
+            this.extractCompanyInfo(ticker, res.query.results.quote));
+        }
+        console.log('done: ', this.companyCollection);
       });
+  }
+
+  extractCompanyInfo(ticker, quote){
+    return {
+      id: ticker,
+      symbol: quote.Symbol,
+      name: quote.Name,
+      exchange: quote.StockExchange,
+      marketcap: quote.MarketCapitalization,
+      range: quote.YearRange,
+      volume: quote.Volume
+    }
   }
 
   updateChart(){
@@ -86,8 +96,17 @@ onNotify(message): void {
     }
   }
 
-  removeStock(){
-    console.log('Stock Removed');
+  removeStock(symbol){
+    if(this.stockSymbols.length > 1){
+      let newStockSymbols = []
+      this.stockSymbols.forEach(stock => {
+        if(stock != symbol) newStockSymbols.push(stock);
+      });
+      this.stockSymbols = newStockSymbols;
+      this.getStockInfo(this.stockSymbols)
+    } else {
+      this.errorMessage.remove = 'Add another stock to remove ' + symbol;
+    }
   }
 
   addStock(stock){
@@ -97,6 +116,7 @@ onNotify(message): void {
         if(res.query.results.quote.Name){
           console.log('success, adding')
           this.stockSymbols.push(stock.toUpperCase())
+          this.getStockInfo(this.stockSymbols)
         } else{
           console.log('trigger error')
           this.errorMessage.search = stock + ' was not found.'
