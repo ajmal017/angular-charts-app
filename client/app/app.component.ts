@@ -92,9 +92,9 @@ export class AppComponent implements OnInit {
   }
 
   updateChart(){
-    console.log('update charts')
+    //console.log('update charts')
     this.mergeCharts();
-    console.log('Adding to chart', this.chartCollection.length, this.stockSymbols.length, this.numberOfQueries, this.numberOfMergers)
+    //console.log('Adding to chart', this.chartCollection.length, this.stockSymbols.length, this.numberOfQueries, this.numberOfMergers)
     if(this.chartCollection.length == this.stockSymbols.length &&
       this.numberOfMergers == (this.stockSymbols.length * (this.numberOfQueries - 1)) ||
       this.numberOfAdditions && this.numberOfMergers == (this.numberOfQueries - 1)){
@@ -112,15 +112,15 @@ export class AppComponent implements OnInit {
       let ss = this.stockSymbols, nq = this.numberOfQueries,
           cc=this.chartCollection, n = cc.length;
       for(let k=0; k<( nq - 1 ); k++){
-        console.log('k=', k)
+        //console.log('k=', k)
         for(let i=0; i<ss.length; i++){
-          console.log('i=', i)
+          //console.log('i=', i)
           var max = -1;
           for(let j=0; j<n; j++){ // find largest
             if(ss[i] == cc[j].id){
               if(max == -1) max = j;
-              if(new Date(cc[max].values[0]).getTime() >
-                new Date(cc[j].values[0]).getTime()) max = j;
+                if((new Date(cc[max].values[0].date)).getTime() >
+                (new Date(cc[j].values[0].date)).getTime()) max = j;
             }
           }
           var newMax = max, max = -1;
@@ -128,8 +128,8 @@ export class AppComponent implements OnInit {
             if(j != newMax){
               if(ss[i] == cc[j].id){
                 if(max == -1) max = j;
-                if(new Date(cc[max].values[0]).getTime() >
-                  new Date(cc[j].values[0]).getTime()) max = j;
+                if((new Date(cc[max].values[0].date)).getTime() >
+                (new Date(cc[j].values[0].date)).getTime()) max = j;
               }
             }
           }
