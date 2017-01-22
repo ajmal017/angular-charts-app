@@ -43,15 +43,19 @@ app.set('view engine', 'ejs'); // set up ejs for templating
 app.use(express.static(path.join(__dirname, '../../dist')));
 
 
-
+var initialStocks = {stocks: ['AMZN', 'GOOGL']};
 io.on('connection', (socket) =>{
+  io.emit('message', {
+    type:'new-message', initialStocks
+  });
   console.log('user connected');
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
   socket.on('add-message', (message) => {
+    initialStocks = {stocks: message}
     io.emit('message', {
-      type:'new-message', text: message
+      type:'new-message', initialStocks
     });
   });
 });

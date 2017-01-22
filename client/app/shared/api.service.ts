@@ -56,7 +56,7 @@ export class ApiService {
   }
 
   formatDate(time){
-    let date = new Date(time), d = date.getDay(), m = (date.getMonth() + 1);
+    let date = new Date(time), d = date.getDate(), m = (date.getMonth() + 1);
     let day = (d > 9) ? '' + d : '0' + d;
     let month = (m > 9) ? '' + m : '0' + m;
     return  date.getFullYear() + '-' + month + '-' + day;

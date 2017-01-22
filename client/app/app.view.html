@@ -5,7 +5,7 @@
         <h3><i class="zmdi zmdi-trending-up"></i> Angular Stocks</h3>
       </div>
       <div class="col-md-6 col-header">
-        <stockpicker (notify)='addStock($event)'></stockpicker>
+        <stockpicker (notify)='addStock($event, true)'></stockpicker>
       </div>
     </div>
     <div class="row row-header">
@@ -37,17 +37,10 @@
   </div>
     <div class="row">
       <div class="col-sm">
-        <stocktiles [companyCollection]="companyCollection" (notify)='removeStock($event)'></stocktiles>
+        <stocktiles [companyCollection]="companyCollection" (notify)='removeStock($event, true)'></stocktiles>
       </div>
     </div>
 </div>
-
-<div *ngFor="let message of messages">
-{{message.text}}
-</div>
-<input [(ngModel)]="message"  />
-<button (click)="sendMessage()">Send</button>
-
 
 <footer class="text-center">
   <p>FreeCodeCamp &nbsp; | &nbsp; <i class="zmdi zmdi-github-alt"></i> &nbsp; <a href="https://github.com/cjsheets">Chad Sheets</a></p>

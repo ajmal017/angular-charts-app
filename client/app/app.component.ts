@@ -5,6 +5,7 @@ import { ApiService } from './shared/api.service';
 import { SocketIoService } from './shared/socket-io.service';
 import { Logger } from './shared/logger.service';
 import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
+import { Subscription }   from 'rxjs/Subscription';
 
 
 @Component({
@@ -22,10 +23,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private numberOfAdditions = 0;
   public selectedDate;
   public errorMessage = { search: '', date: '', remove: '' }
-
- messages = [];
- connection;
- message;
+  private subs: Subscription[] = [];
+  private firstMessage = true;
 
   @ViewChild('fromDate') fromDateComponent;
   @ViewChild('toDate') toDateComponent;
@@ -37,25 +36,55 @@ export class AppComponent implements OnInit, OnDestroy {
   ){}
 
   ngOnInit(): void {
- this.connection = this._io.getMessages()
-  .subscribe(message => {
-      this.messages.push(message);
-    })
+ this.subs[this.subs.length] = this._io.getMessages()
+  .subscribe((message: any) => {
+    let newSymbols = message.initialStocks.stocks;
+    if(this.firstMessage){
+      this.selectedDate = {from: '2016-01-11', to: '2017-01-10'}
+      this.fromDateComponent.init('From', this.selectedDate.from);
+      this.toDateComponent.init('To', this.selectedDate.to);
+      this.stockSymbols = newSymbols;
+      this.numberOfMergers = 0;
+      this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
+      this.getStockInfo(this.stockSymbols)
+      this.firstMessage = false
+    } else {
+      if(!this.identicalArrays(this.stockSymbols, newSymbols)){
+        console.log(this.stockSymbols, newSymbols)
+        if(this.stockSymbols.length == newSymbols.length + 1){
+          console.log('removed a stock')
+          this.stockSymbols.forEach(symbol =>{
+            for(let i=0; i<newSymbols.length; i++){
+              if(symbol == newSymbols[i]) break;
+              if(i == newSymbols.length - 1) this.removeStock(symbol, false);
+            }
+          })
+        } else if(this.stockSymbols.length == newSymbols.length - 1) {
+          console.log('added a stock')
+          newSymbols.forEach(symbol =>{
+            for(let i=0; i<this.stockSymbols.length; i++){
+              if(symbol == this.stockSymbols[i]) break;
+              if(i == this.stockSymbols.length - 1) this.addStock(symbol, false);
+            }
+          })
+        } else {
+          console.log('reseting app')
+          this.stockSymbols = newSymbols;
+          this.resetApp();
+        }
+      }
+    }
+  })
 
-    this.selectedDate = {from: '2016-01-11', to: '2017-01-10'}
-    this.fromDateComponent.init('From', this.selectedDate.from);
-    this.toDateComponent.init('To', this.selectedDate.to);
-    this.stockSymbols = ['AMZN', 'GOOGL']
-    this.numberOfMergers = 0;
-    this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
-    this.getStockInfo(this.stockSymbols)
   }
 
    ngOnDestroy() {
-     this.connection.unsubscribe();
-    }
+    for(let sub of this.subs) sub.unsubscribe();
+  }
 
-     sendMessage(){ this._io.sendMessage(this.message); this.message = ''; }
+    sendMessage(){
+      this._io.sendMessage(this.stockSymbols);
+    }
 
   getStockHistory(ticker){
     let queries = this._api.buildHistoryQuery(ticker, this.selectedDate.from, this.selectedDate.to);
@@ -70,7 +99,7 @@ export class AppComponent implements OnInit, OnDestroy {
             processedData.values[res.query.results.quote.length-i-1] = {date: res.query.results.quote[i].Date,
             close: Math.round(res.query.results.quote[i].Close * 10)/10};
           this.chartCollection.push(processedData);
-          //console.log('getStockHistory(): processed', this.chartCollection)
+          console.log('getStockHistory(): processed', this.chartCollection)
           this.updateChart();
         });
     });
@@ -114,7 +143,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if(this.chartCollection.length == this.stockSymbols.length &&
       this.numberOfMergers == (this.stockSymbols.length * (this.numberOfQueries - 1)) ||
       this.numberOfAdditions && this.numberOfMergers == (this.numberOfQueries - 1)){
-        console.log('entered, adding...')
+        //console.log('entered, adding...')
       this.chartData = [];
       this.chartCollection.forEach(chart => this.chartData.push(chart));
       this.numberOfAdditions = 0;
@@ -124,7 +153,7 @@ export class AppComponent implements OnInit, OnDestroy {
   mergeCharts(){
     if(this.chartCollection.length == this.stockSymbols.length * this.numberOfQueries
       || this.numberOfAdditions && (this.chartCollection.length == this.stockSymbols.length + this.numberOfQueries - 1 )){
-      console.log('Merge Charts: ')
+      //console.log('Merge Charts: ')
       let ss = this.stockSymbols, nq = this.numberOfQueries,
           cc=this.chartCollection, n = cc.length;
       for(let k=0; k<( nq - 1 ); k++){
@@ -157,11 +186,11 @@ export class AppComponent implements OnInit, OnDestroy {
           }
         }
       }
-      console.log('Merge Charts (done): ', this.chartCollection)
+      //console.log('Merge Charts (done): ', this.chartCollection)
     }
   }
 
-  removeStock(symbol){
+  removeStock(symbol, broadcast){
     if(this.stockSymbols.length > 1){
       let newStockSymbols = [] // Use javascript function to complete
       this.stockSymbols.forEach(stock => {
@@ -176,13 +205,14 @@ export class AppComponent implements OnInit, OnDestroy {
       this.chartCollection = newChartCollection;
       this.numberOfMergers = (this.stockSymbols.length * (this.numberOfQueries - 1));
       this.updateChart();
+      if(broadcast) this.sendMessage();
     } else {
       this.errorMessage.remove = 'Add another stock to remove ' + symbol;
     }
   }
 
-  addStock(stock){
-    console.log('addStock(): initial', this.stockSymbols)
+  addStock(stock, broadcast){
+    //console.log('addStock(): initial', this.stockSymbols)
     let ucStock = stock.toUpperCase()
     let query = this._api.buildQuoteQuery(ucStock);
     this._api.queryAPI(query)
@@ -194,11 +224,21 @@ export class AppComponent implements OnInit, OnDestroy {
           this.numberOfMergers = 0;
           this.numberOfAdditions++;
           this.getStockHistory(ucStock)
+          if(broadcast) this.sendMessage();
         } else{
           console.log('trigger error')
           this.errorMessage.search = ucStock + ' was not found.'
         }
       });
+  }
+
+  resetApp(){
+    this.selectedDate = {from: '2016-01-11', to: '2017-01-10'}
+    this.fromDateComponent.init('From', this.selectedDate.from);
+    this.toDateComponent.init('To', this.selectedDate.to);
+    this.numberOfMergers = 0;
+    this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
+    this.getStockInfo(this.stockSymbols)
   }
 
   setDate(proposedDate, toOrFrom): void {
@@ -223,5 +263,19 @@ export class AppComponent implements OnInit, OnDestroy {
     this.chartCollection = [];
     this.numberOfMergers = 0;
     this.stockSymbols.forEach(symbol => this.getStockHistory(symbol));
+  }
+
+  identicalArrays(ary1, ary2){
+    if (ary1.length != ary2.length)
+      return false;
+    for (var i = 0, l=ary1.length; i < l; i++) {
+      if (ary1[i] instanceof Array && ary2[i] instanceof Array) {
+        if (!this.identicalArrays(ary1[i], ary2[i]))
+          return false;
+      } else if (ary1[i] != ary2[i]) { 
+        return false;
+      }
+    }
+    return true;
   }
 }
